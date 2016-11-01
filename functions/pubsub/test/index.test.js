@@ -119,9 +119,10 @@ describe(`functions:pubsub`, () => {
 
   it(`Subscribes to a message`, () => {
     const callback = sinon.stub();
+    const json = JSON.stringify({ data: MESSAGE });
     const event = {
       data: {
-        data: MESSAGE
+        data: Buffer.from(json).toString('base64')
       }
     };
 
@@ -129,7 +130,7 @@ describe(`functions:pubsub`, () => {
     sample.program.subscribe(event, callback);
 
     assert.deepEqual(console.log.callCount, 1);
-    assert.deepEqual(console.log.firstCall.args, [event.data]);
+    assert.deepEqual(console.log.firstCall.args, [json]);
     assert.deepEqual(callback.callCount, 1);
     assert.deepEqual(callback.firstCall.args, []);
   });

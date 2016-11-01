@@ -15,7 +15,7 @@
 
 'use strict';
 
-// [START helloworld]
+// [START functions_http_helloworld]
 /**
  * Responds to any HTTP request that can provide a "message" field in the body.
  *
@@ -32,9 +32,45 @@ exports.helloWorld = function helloWorld (req, res) {
     res.status(200).end();
   }
 };
-// [END helloworld]
+// [END functions_http_helloworld]
 
-// [START helloHttp]
+// [START functions_http_content]
+/**
+ * Responds to any HTTP request that can provide a "message" field in the body.
+ *
+ * @param {Object} req Cloud Function request context.
+ * @param {Object} res Cloud Function response context.
+ */
+exports.helloContent = function helloContent (req, res) {
+  let name;
+
+  switch (req.get('content-type')) {
+    // '{"name":"John"}'
+    case 'application/json':
+      name = req.body.name;
+      break;
+
+    // 'John', stored in a Buffer
+    case 'application/octet-stream':
+      name = req.body.toString(); // Convert buffer to a string
+      break;
+
+    // 'John'
+    case 'text/plain':
+      name = req.body;
+      break;
+
+    // 'name=John'
+    case 'application/x-www-form-urlencoded':
+      name = req.body.name;
+      break;
+  }
+
+  res.status(200).send(`Hello ${name || 'World'}!`);
+};
+// [END functions_http_content]
+
+// [START functions_http_method]
 function handleGET (req, res) {
   // Do something with the GET request
   res.status(200).send('Hello World!');
@@ -67,40 +103,4 @@ exports.helloHttp = function helloHttp (req, res) {
       break;
   }
 };
-// [END helloHttp]
-
-// [START helloContent]
-/**
- * Responds to any HTTP request that can provide a "message" field in the body.
- *
- * @param {Object} req Cloud Function request context.
- * @param {Object} res Cloud Function response context.
- */
-exports.helloContent = function helloContent (req, res) {
-  var name;
-
-  switch (req.get('content-type')) {
-    // '{"name":"John"}'
-    case 'application/json':
-      name = req.body.name;
-      break;
-
-    // 'John', stored in a Buffer
-    case 'application/octet-stream':
-      name = req.body.toString(); // Convert buffer to a string
-      break;
-
-    // 'John'
-    case 'text/plain':
-      name = req.body;
-      break;
-
-    // 'name=John'
-    case 'application/x-www-form-urlencoded':
-      name = req.body.name;
-      break;
-  }
-
-  res.status(200).send('Hello ' + (name || 'World') + '!');
-};
-// [END helloContent]
+// [END functions_http_method]

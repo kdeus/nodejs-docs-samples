@@ -35,7 +35,7 @@ exports.helloWorld = function helloWorld (event, callback) {
 };
 // [END functions_background_helloworld]
 
-// [START functions_background_hello_promise]
+// [START functions_background_promise]
 /**
  * Background Cloud Function that returns a Promise. Note that we don't pass
  * a "callback" argument to the function.
@@ -51,9 +51,9 @@ exports.helloPromise = function helloPromise (event) {
     uri: event.data.endpoint
   });
 };
-// [END functions_background_hello_promise]
+// [END functions_background_promise]
 
-// [START functions_background_hello_synchronous]
+// [START functions_background_synchronous]
 /**
  * Background Cloud Function that returns synchronously. Note that we don't pass
  * a "callback" argument to the function.
@@ -69,4 +69,4 @@ exports.helloSynchronous = function helloSynchronous (event) {
     throw new Error('Something was not true!');
   }
 };
-// [END functions_background_hello_synchronous]
+// [END functions_background_synchronous]

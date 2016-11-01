@@ -13,7 +13,7 @@
 
 'use strict';
 
-// [START setup]
+// [START functions_sendgrid_setup]
 var async = require('async');
 var sendgrid = require('sendgrid');
 var config = require('./config.json');
@@ -24,9 +24,9 @@ var uuid = require('node-uuid');
 var storage = gcloud.storage();
 // Get a reference to the BigQuery component
 var bigquery = gcloud.bigquery();
-// [END setup]
+// [END functions_sendgrid_setup]
 
-// [START getClient]
+// [START functions_sendgrid_get_client]
 /**
  * Returns a configured SendGrid client.
  *
@@ -44,9 +44,9 @@ function getClient (key) {
   // Using SendGrid's Node.js Library https://github.com/sendgrid/sendgrid-nodejs
   return sendgrid.SendGrid(key);
 }
-// [END getClient]
+// [END functions_sendgrid_get_client]
 
-// [START getPayload]
+// [START functions_get_payload]
 /**
  * Constructs the SendGrid email request from the HTTP request body.
  *
@@ -93,9 +93,9 @@ function getPayload (requestBody) {
     new sendgrid.mail.Content('text/plain', requestBody.body)
   );
 }
-// [END getPayload]
+// [END functions_get_payload]
 
-// [START email]
+// [START functions_sendgrid_email]
 /**
  * Send an email using SendGrid.
  *
@@ -160,9 +160,9 @@ exports.sendgridEmail = function sendgridEmail (req, res) {
     return res.status(err.code || 500).send(err.message);
   }
 };
-// [END email]
+// [END functions_sendgrid_email]
 
-// [START verifyWebhook]
+// [START functions_sendgrid_verify_webhook]
 /**
  * Verify that the webhook request came from sendgrid.
  *
@@ -177,9 +177,9 @@ function verifyWebhook (authorization) {
     throw error;
   }
 }
-// [END verifyWebhook]
+// [END functions_sendgrid_verify_webhook]
 
-// [START fixNames]
+// [START functions_sendgrid_fix_names]
 /**
  * Recursively rename properties in to meet BigQuery field name requirements.
  *
@@ -202,9 +202,9 @@ function fixNames (obj) {
     }
   }
 }
-// [END fixNames]
+// [END functions_sendgrid_fix_names]
 
-// [START webhook]
+// [START functions_sendgrid_webhook]
 /**
  * Receive a webhook from SendGrid.
  *
@@ -259,9 +259,9 @@ exports.sendgridWebhook = function sendgridWebhook (req, res) {
     return res.status(err.code || 500).send(err.message);
   }
 };
-// [END webhook]
+// [END functions_sendgrid_webhook]
 
-// [START getTable]
+// [START functions_sendgrid_get_table]
 /**
  * Helper method to get a handle on a BigQuery table. Automatically creates the
  * dataset and table if necessary.
@@ -287,9 +287,9 @@ function getTable (callback) {
     });
   });
 }
-// [END getTable]
+// [END functions_sendgrid_get_table]
 
-// [START load]
+// [START functions_sendgrid_load]
 /**
  * Cloud Function triggered by Cloud Storage when a file is uploaded.
  *
@@ -358,4 +358,4 @@ exports.sendgridLoad = function sendgridLoad (context, data) {
     return context.failure(err.message);
   }
 };
-// [END load]
+// [END functions_sendgrid_load]

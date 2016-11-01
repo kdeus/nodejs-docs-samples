@@ -20,7 +20,7 @@ const Logging = require('@google-cloud/logging');
 // Instantiates a client
 const logging = Logging();
 
-// [START functions_hello_advanced_http_error]
+// [START functions_errorreporting_report_advanced]
 /**
  * Report an error to StackDriver Error Reporting. Writes up to the maximum data
  * accepted by StackDriver Error Reporting.
@@ -128,6 +128,6 @@ function reportDetailedError (err, req, res, options, callback) {
 
   log.write(log.entry(metadata, structPayload), callback);
 }
-// [END functions_hello_advanced_http_error]
+// [END functions_errorreporting_report_advanced]
 
 module.exports = reportDetailedError;

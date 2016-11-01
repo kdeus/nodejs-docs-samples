@@ -28,7 +28,7 @@ exports.helloWorld = function helloWorld (event, callback) {
 };
 // [END functions_helloworld]
 
-// [START functions_hello_get]
+// [START functions_helloworld_get]
 /**
  * HTTP Cloud Function.
  *
@@ -38,9 +38,9 @@ exports.helloWorld = function helloWorld (event, callback) {
 exports.helloGET = function helloGET (req, res) {
   res.send('Hello World!');
 };
-// [END functions_hello_get]
+// [END functions_helloworld_get]
 
-// [START functions_hello_http]
+// [START functions_helloworld_http]
 /**
  * HTTP Cloud Function.
  *
@@ -50,9 +50,9 @@ exports.helloGET = function helloGET (req, res) {
 exports.helloHttp = function helloHttp (req, res) {
   res.send(`Hello ${req.body.name || 'World'}!`);
 };
-// [END functions_hello_http]
+// [END functions_helloworld_http]
 
-// [START functions_hello_background]
+// [START functions_helloworld_background]
 /**
  * Background Cloud Function.
  *
@@ -62,9 +62,9 @@ exports.helloHttp = function helloHttp (req, res) {
 exports.helloBackground = function helloBackground (event, callback) {
   callback(null, `Hello ${event.data.name || 'World'}!`);
 };
-// [END functions_hello_background]
+// [END functions_helloworld_background]
 
-// [START functions_hello_pubsub]
+// [START functions_helloworld_pubsub]
 /**
  * Background Cloud Function to be triggered by Pub/Sub.
  *
@@ -73,13 +73,13 @@ exports.helloBackground = function helloBackground (event, callback) {
  */
 exports.helloPubSub = function helloPubSub (event, callback) {
   const pubsubMessage = event.data;
-  const name = pubsubMessage.data ? Buffer.from(pubsubMessage.data, 'base64') : 'World';
+  const name = pubsubMessage.data ? Buffer.from(pubsubMessage.data, 'base64').toString() : 'World';
   console.log(`Hello ${name}!`);
   callback();
 };
-// [END functions_hello_pubsub]
+// [END functions_helloworld_pubsub]
 
-// [START functions_hello_storage]
+// [START functions_helloworld_storage]
 /**
  * Background Cloud Function to be triggered by Cloud Storage.
  *
@@ -98,9 +98,9 @@ exports.helloGCS = function helloGCS (event, callback) {
 
   callback();
 };
-// [END functions_hello_storage]
+// [END functions_helloworld_storage]
 
-// [START functions_hello_error]
+// [START functions_helloworld_error]
 /**
  * Background Cloud Function that throws an error.
  *
@@ -108,12 +108,13 @@ exports.helloGCS = function helloGCS (event, callback) {
  * @param {function} The callback function.
  */
 exports.helloError = function helloError (event, callback) {
-  // This WILL be reported to Stackdriver errors  
+  // This WILL be reported to Stackdriver errors
   throw new Error('I failed you');
 };
-// [END functions_hello_error]
+// [END functions_helloworld_error]
 
-// [START functions_hello_error_2]
+/* eslint-disable */
+// [START functions_helloworld_error_2]
 /**
  * Background Cloud Function that throws a value.
  *
@@ -121,12 +122,13 @@ exports.helloError = function helloError (event, callback) {
  * @param {function} The callback function.
  */
 exports.helloError2 = function helloError2 (event, callback) {
-  // This will NOT be reported to Stackdriver errors  
+  // This will NOT be reported to Stackdriver errors
   throw 1;
 };
-// [END functions_hello_error_2]
+// [END functions_helloworld_error_2]
+/* eslint-enable */
 
-// [START functions_hello_error_3]
+// [START functions_helloworld_error_3]
 /**
  * Background Cloud Function that throws an error.
  *
@@ -137,4 +139,4 @@ exports.helloError3 = function helloError3 (event, callback) {
   // This will NOT be reported to Stackdriver errors
   callback('I failed you');
 };
-// [END functions_hello_error_3]
+// [END functions_helloworld_error_3]

@@ -13,15 +13,15 @@
 
 'use strict';
 
-// [START setup]
+// [START functions_slack_setup]
 var config = require('./config.json');
 var googleapis = require('googleapis');
 
 // Get a reference to the Knowledge Graph Search component
 var kgsearch = googleapis.kgsearch('v1');
-// [END setup]
+// [END functions_slack_setup]
 
-// [START formatSlackMessage]
+// [START functions_slack_format]
 /**
  * Format the Knowledge Graph API response into a richly formatted Slack message.
  *
@@ -76,9 +76,9 @@ function formatSlackMessage (query, response) {
 
   return slackMessage;
 }
-// [END formatSlackMessage]
+// [END functions_slack_format]
 
-// [START verifyWebhook]
+// [START functions_verify_webhook]
 /**
  * Verify that the webhook request came from Slack.
  *
@@ -92,9 +92,9 @@ function verifyWebhook (body) {
     throw error;
   }
 }
-// [END verifyWebhook]
+// [END functions_verify_webhook]
 
-// [START makeSearchRequest]
+// [START functions_slack_request]
 /**
  * Send the user's search query to the Knowledge Graph API.
  *
@@ -115,9 +115,9 @@ function makeSearchRequest (query, callback) {
     return callback(null, formatSlackMessage(query, response));
   });
 }
-// [END makeSearchRequest]
+// [END functions_slack_request]
 
-// [START kgSearch]
+// [START functions_slack_search]
 /**
  * Receive a Slash Command request from Slack.
  *
@@ -159,4 +159,4 @@ exports.kgSearch = function kgSearch (req, res) {
     return res.status(err.code || 500).send(err.message);
   }
 };
-// [END kgSearch]
+// [END functions_slack_search]

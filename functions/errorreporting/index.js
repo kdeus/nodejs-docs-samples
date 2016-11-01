@@ -15,18 +15,16 @@
 
 'use strict';
 
-// [START functions_error_setup]
+// [START functions_errorreporting_setup]
 const Logging = require('@google-cloud/logging');
 
 // Instantiates a client
 const logging = Logging();
-// [END functions_error_setup]
+// [END functions_errorreporting_setup]
 
-// [START functions_report_detailed_error]
 const reportDetailedError = require('./report');
-// [END functions_report_detailed_error]
 
-// [START functions_hello_simple_error_report]
+// [START functions_errorreporting_report]
 /**
  * Report an error to StackDriver Error Reporting. Writes the minimum data
  * required for the error to be picked up by StackDriver Error Reporting.
@@ -63,9 +61,9 @@ function reportError (err, callback) {
   // Write the error log entry
   log.write(log.entry(metadata, errorEvent), callback);
 }
-// [END functions_hello_simple_error_report]
+// [END functions_errorreporting_report]
 
-// [START functions_hello_simple_error]
+// [START functions_errorreporting_simple]
 /**
  * HTTP Cloud Function.
  *
@@ -89,9 +87,9 @@ exports.helloSimpleError = function helloSimpleError (req, res) {
     });
   }
 };
-// [END functions_hello_simple_error]
+// [END functions_errorreporting_simple]
 
-// [START functions_hello_http_error]
+// [START functions_errorreporting_http]
 /**
  * HTTP Cloud Function.
  *
@@ -119,9 +117,9 @@ exports.helloHttpError = function helloHttpError (req, res) {
     });
   }
 };
-// [END functions_hello_http_error]
+// [END functions_errorreporting_http]
 
-// [START functions_hello_background_error]
+// [START functions_errorreporting_background]
 /**
  * Background Cloud Function.
  *
@@ -148,4 +146,4 @@ exports.helloBackgroundError = function helloBackgroundError (event, callback) {
     });
   }
 };
-// [END functions_hello_background_error]
+// [END functions_errorreporting_background]

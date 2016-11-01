@@ -13,23 +13,23 @@
 
 'use strict';
 
-// [START ocr_setup]
-var async = require('async');
-var config = require('./config.json');
+// [START functions_ocr_setup]
+const async = require('async');
+const config = require('./config.json');
 
 // Get a reference to the Pub/Sub component
-var pubsub = require('@google-cloud/pubsub')();
+const pubsub = require('@google-cloud/pubsub')();
 // Get a reference to the Cloud Storage component
-var storage = require('@google-cloud/storage')();
+const storage = require('@google-cloud/storage')();
 // Get a reference to the Cloud Vision API component
-var vision = require('@google-cloud/vision')();
+const vision = require('@google-cloud/vision')();
 // Get a reference to the Translate API component
-var translate = require('@google-cloud/translate')({
+const translate = require('@google-cloud/translate')({
   key: config.TRANSLATE_API_KEY
 });
-// [END ocr_setup]
+// [END functions_ocr_setup]
 
-// [START ocr_publish]
+// [START functions_ocr_publish]
 /**
  * Publishes the result to the given pubsub topic and returns a Promise.
  *
@@ -50,56 +50,49 @@ function publishResult (topicName, data, callback) {
     }, callback);
   });
 }
-// [END ocr_publish]
+// [END functions_ocr_publish]
 
-// [START ocr_detect]
+// [START functions_ocr_detect]
 /**
  * Detects the text in an image using the Google Vision API.
  *
- * @param {string} filename Name of the file to scan.
- * @param {Object} image Cloud Storage File instance.
+ * @param {object} file Cloud Storage File instance.
+ * @returns {Promise}
  */
-function detectText (filename, image, callback) {
-  var text;
+function detectText (file) {
+  let text;
 
-  return async.waterfall([
-    // Read the text from the image.
-    function (cb) {
-      console.log('Looking for text in file ' + filename);
-      vision.detectText(image, cb);
-    },
-    // Detect the language to avoid unnecessary translations
-    function (result, apiResponse, cb) {
-      text = result[0];
-      console.log('Extracted text from image (' + text.length + ' chars)');
-      translate.detect(text, cb);
-    },
-    // Publish results
-    function (result, cb) {
-      console.log('Detected language "' + result.language + '" for ' + filename);
+  console.log(`Looking for text in image ${file.name}`);
+  return vision.detectText(file)
+    .then(([_text]) => {
+      text = _text;
+      console.log(`Extracted text from image (${text.length} chars)`);
+      return translate.detect(text);
+    })
+    .then(([translation]) => {
+      console.log(`Detected language "${translation.language}" for ${file.name}`);
+
       // Submit a message to the bus for each language we're going to translate to
-      var tasks = config.TO_LANG.map(function (lang) {
-        var topicName = config.TRANSLATE_TOPIC;
-        if (result.language === lang) {
+      const tasks = config.TO_LANG.map((lang) => {
+        const topicName = config.TRANSLATE_TOPIC;
+        if (translation.language === lang) {
           topicName = config.RESULT_TOPIC;
         }
-        var payload = {
+        const payload = {
           text: text,
-          filename: filename,
+          filename: file.name,
           lang: lang,
-          from: result.language
+          from: translation.language
         };
-        return function (cb) {
-          publishResult(topicName, payload, cb);
-        };
+        return publishResult(topicName, payload);
       });
-      async.parallel(tasks, cb);
-    }
-  ], callback);
-}
-// [END ocr_detect]
 
-// [START ocr_rename]
+      return Promise.all(tasks);
+    });
+}
+// [END functions_ocr_detect]
+
+// [START functions_ocr_rename]
 /**
  * Appends a .txt suffix to the image name.
  *
@@ -117,9 +110,9 @@ function renameImageForSave (filename, lang) {
   }
   return filename;
 }
-// [END ocr_rename]
+// [END functions_ocr_rename]
 
-// [START ocr_process]
+// [START functions_ocr_process]
 /**
  * Cloud Function triggered by Cloud Storage when a file is uploaded.
  *
@@ -132,40 +125,32 @@ function renameImageForSave (filename, lang) {
  * @param {string} [data.timeDeleted] Time the file was deleted if this is a deletion event.
  * @see https://cloud.google.com/storage/docs/json_api/v1/objects#resource
  */
-exports.processImage = function processImage (context, data) {
-  try {
-    if (data.hasOwnProperty('timeDeleted')) {
-      // This was a deletion event, we don't want to process this
-      return context.done();
-    }
-
-    if (!data.bucket) {
-      throw new Error('Bucket not provided. Make sure you have a ' +
-        '"bucket" property in your request');
-    }
-    if (!data.name) {
-      throw new Error('Filename not provided. Make sure you have a ' +
-        '"name" property in your request');
-    }
-
-    var bucket = storage.bucket(data.bucket);
-    var file = bucket.file(data.name);
-    detectText(data.name, file, function (err) {
-      if (err) {
-        console.error(err);
-        return context.failure(err);
+exports.processImage = function processImage (event) {
+  return Promise.resolve(event.data)
+    .then((file) => {
+      if (file.resourceState === 'not_exists') {
+        // This was a deletion event, we don't want to process this
+        return;
       }
-      console.log('Processed ' + data.name);
-      return context.success();
-    });
-  } catch (err) {
-    console.error(err);
-    return context.failure(err.message);
-  }
-};
-// [END ocr_process]
 
-// [START ocr_translate]
+      if (!file.bucket) {
+        throw new Error('Bucket not provided. Make sure you have a "bucket" property in your request');
+      }
+      if (!file.name) {
+        throw new Error('Filename not provided. Make sure you have a "name" property in your request');
+      }
+
+      file = storage.bucket(file.bucket).file(file.name);
+
+      return detectText(file);
+    })
+    .then((file) => {
+      console.log(`File ${file.name} processed.`);
+    });
+};
+// [END functions_ocr_process]
+
+// [START functions_ocr_translate]
 /**
  * Translates text using the Google Translate API. Triggered from a message on
  * a Pub/Sub topic.
@@ -221,9 +206,9 @@ exports.translateText = function translateText (context, data) {
     return context.failure(err.message);
   }
 };
-// [END ocr_translate]
+// [END functions_ocr_translate]
 
-// [START ocr_save]
+// [START functions_ocr_save]
 /**
  * Saves the data packet to a file in GCS. Triggered from a message on a Pub/Sub
  * topic.
@@ -272,4 +257,4 @@ exports.saveResult = function saveResult (context, data) {
     return context.failure(err.message);
   }
 };
-// [END ocr_save]
+// [END functions_ocr_save]

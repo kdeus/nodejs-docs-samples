@@ -62,7 +62,8 @@ describe(`functions:helloworld`, () => {
   });
 
   it(`helloHttp: should print hello world`, (done) => {
-    var expectedMsg = `Hello World!`;
+    const expectedMsg = `Hello World!`;
+
     program.helloHttp({
       body: {}
     }, {

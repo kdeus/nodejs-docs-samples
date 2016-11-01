@@ -80,7 +80,7 @@ exports.subscribe = function subscribe (event, callback) {
   const pubsubMessage = event.data;
 
   // We're just going to log the message to prove that it worked!
-  console.log(Buffer.from(pubsubMessage.data, 'base64'));
+  console.log(Buffer.from(pubsubMessage.data, 'base64').toString());
 
   // Don't forget to call the callback!
   callback();
