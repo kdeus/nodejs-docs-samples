@@ -66,6 +66,23 @@ describe(`functions:gcs`, () => {
     );
   });
 
+  it(`Does nothing for deleted files`, (done) => {
+    const event = {
+      data: {
+        resourceState: `not_exists`
+      }
+    };
+    const sample = getSample();
+
+    sample.program.wordCount(event, (err, message) => {
+      assert.ifError(err);
+      assert.equal(message, undefined);
+      assert.deepEqual(sample.mocks.storage.bucket.callCount, 0);
+      assert.deepEqual(sample.mocks.bucket.file.callCount, 0);
+      done();
+    });
+  });
+
   it(`Reads the file line by line`, (done) => {
     const expectedMsg = `File ${filename} has 114 words`;
     const event = {
