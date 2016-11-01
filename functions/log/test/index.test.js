@@ -17,8 +17,6 @@
 
 const proxyquire = require(`proxyquire`).noCallThru();
 
-const authClient = {};
-
 function getSample () {
   const results = [[{}], {}];
   const stream = {
@@ -71,7 +69,7 @@ describe(`functions:log`, () => {
       .then((entries) => {
         assert.equal(console.log.calledWith(`Entries:`), true);
         assert.strictEqual(entries, sample.mocks.results[0]);
-      })
+      });
   });
 
   it(`getMetrics: should retrieve metrics`, () => {

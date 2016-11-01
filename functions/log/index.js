@@ -91,7 +91,7 @@ function getMetrics (callback) {
     .on('data', (element) => console.log(element))
     .on('end', () => callback(error));
   // [END functions_log_get_metrics]
-};
+}
 
 exports.getLogEntries = getLogEntries;
 exports.getMetrics = getMetrics;
