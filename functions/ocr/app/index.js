@@ -33,21 +33,13 @@ const translate = require('@google-cloud/translate')({
  * Publishes the result to the given pubsub topic and returns a Promise.
  *
  * @param {string} topicName Name of the topic on which to publish.
- * @param {object} data The data to publish.
- * @param {function} callback Callback function.
+ * @param {object} data The message data to publish.
  */
-function publishResult (topicName, data, callback) {
-  return pubsub.topic(topicName).get({
-    autoCreate: true
-  }, function (err, topic) {
-    if (err) {
-      return callback(err);
-    }
-    // Pub/Sub messages must be valid JSON objects with a data property.
-    return topic.publish({
-      data: data
-    }, callback);
-  });
+function publishResult (topicName, data) {
+  return pubsub.topic(topicName).get({ autoCreate: true })
+    .then(([topic]) => {
+      return topic.publish({ data })
+    });
 }
 // [END functions_ocr_publish]
 
@@ -77,13 +69,14 @@ function detectText (file) {
         if (translation.language === lang) {
           topicName = config.RESULT_TOPIC;
         }
-        const payload = {
+        const messageData = {
           text: text,
           filename: file.name,
           lang: lang,
           from: translation.language
         };
-        return publishResult(topicName, payload);
+
+        return publishResult(topicName, messageData);
       });
 
       return Promise.all(tasks);
@@ -117,8 +110,6 @@ function renameImageForSave (filename, lang) {
  *
  * @param {object} event The Cloud Functions event.
  * @param {object} event.data A Google Cloud Storage File object.
- * @param {string} event.data.bucket Name of the Cloud Storage bucket.
- * @param {string} event.data.name Name of the file.
  */
 exports.processImage = function processImage (event) {
   let file = event.data;
@@ -183,13 +174,13 @@ exports.translateText = function translateText (event) {
       return translate.translate(payload.text, options);
     })
     .then(([translation]) => {
-      const options = {
+      const messageData = {
         text: translation,
         filename: payload.filename,
         lang: payload.lang
       };
 
-      return publishResult(config.RESULT_TOPIC, options);
+      return publishResult(config.RESULT_TOPIC, messageData);
     })
     .then(() => {
       console.log(`Text translated to ${payload.lang}`);
